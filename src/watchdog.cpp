@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
     string message;
     unnamedPipe = open(myfifo,O_WRONLY);
 
-    temp[30] = 'P0' + getpid(); 
+    temp[30] = 'P0 ' + getpid(); 
     write(unnamedPipe, temp, 30);
 
     for(int i=1; i<=num_of_processes; i++) {
