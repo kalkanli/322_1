@@ -1,13 +1,3 @@
-/*
-
-- writes to the pipe of the processes with their ids P# <pid>
-- initialize all processes using fork() with exec() of processes. 
-- if a process is terminated, restart that process and write its pid and P#
-- if terminated process is the head process, then kill all processes via SIGTERM signal, 
-- check if it is terminated. if so reinitialize.
-
-
-*/
 #include <iostream>
 #include <string> 
 #include <unistd.h>
@@ -58,6 +48,9 @@ int main(int argc, char const *argv[])
         }
     }
 
+    while(1) {
+        sleep(1);
+    }
     /*
         wait for signals. then do propoper operation.
         wait is necessary since we want watchdog to wait for child processes.
