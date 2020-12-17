@@ -8,6 +8,7 @@
 
 
 */
+#include <iostream>
 #include <string> 
 #include <unistd.h>
 #include <fstream>
@@ -27,6 +28,8 @@ int main(int argc, char const *argv[])
 
     ofstream myfile;
     myfile.open(watchdog_output);
+    char output[50];
+
     int unnamedPipe;
     char * myfifo = (char*) "/tmp/myfifo";
     mkfifo(myfifo, 0644);
@@ -34,18 +37,30 @@ int main(int argc, char const *argv[])
     string message;
     unnamedPipe = open(myfifo,O_WRONLY);
 
-    for(int i=0; i<num_of_processes; i++){
+    temp[30] = 'P0' + getpid(); 
+    write(unnamedPipe, temp, 30);
+
+    for(int i=1; i<=num_of_processes; i++) {
+
         pid_t child = fork();
         if(child == 0) {
             char process_number = char(i);
-            execl("./executor.out", (char*)process_number ,process_output); // might not be correct to way.
-            temp[30] = 'P' + i + ' ' + getpid();
+            int pid = getpid();
+            temp[30] = 'P' + i + ' ' + pid;
             write(unnamedPipe, temp, 30);
+            output[50] = 'P' + i + ' is started and it has a pid of ' + pid;
+            myfile << output << endl;
+            execl("./executor.out", (char*) process_number, process_output); // might not be correct to way.
+            break;
+        } else if(child == -1) {
+            perror("fork failed.");
+            break;
         }
     }
 
     /*
         wait for signals. then do propoper operation.
+        wait is necessary since we want watchdog to wait for child processes.
     */
 
     return 0;
