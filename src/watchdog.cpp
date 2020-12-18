@@ -15,6 +15,7 @@ char* watchdog_output;
 
 int main(int argc, char const *argv[])
 {   
+    cout << argv[1] << endl;
     num_of_processes = stoi(argv[1]);
     process_output = (char*) argv[2];
     watchdog_output = (char*) argv[3];
@@ -26,11 +27,11 @@ int main(int argc, char const *argv[])
     int unnamedPipe;
     char * myfifo = (char*) "/tmp/myfifo";
     mkfifo(myfifo, 0644);
-    char temp[30];
     string message;
+    
+    char temp[30] = "P0 " + to_string(getpid());
     unnamedPipe = open(myfifo,O_WRONLY);
-
-    message = "P0 " + getpid(); 
+ 
     write(unnamedPipe, temp, 30);
     int i, pid;
     char process_number;
@@ -43,7 +44,7 @@ int main(int argc, char const *argv[])
             pid = getpid();
             temp[30] = 'P' + i + ' ' + pid;
             write(unnamedPipe, temp, 30);
-            message = 'P' + char(i) + ' is started and it has a pid of ' + pid;
+            message = "P" + to_string(i) + " is started and it has a pid of " + to_string(pid);
             myfile << message << endl;
             execl("/mnt/c/Users/ABDULLAH/Desktop/322_1/src/process.out", number, process_output, NULL); // might not be correct to way.
             break;
