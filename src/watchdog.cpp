@@ -30,10 +30,11 @@ int main(int argc, char const *argv[])
     string message;
     unnamedPipe = open(myfifo,O_WRONLY);
 
-    temp[30] = 'P0 ' + getpid(); 
+    message = "P0 " + getpid(); 
     write(unnamedPipe, temp, 30);
     int i, pid;
     char process_number;
+    char* number = &process_number;
     for(i=1; i<=num_of_processes; i++) {
 
         pid_t child = fork();
@@ -42,9 +43,9 @@ int main(int argc, char const *argv[])
             pid = getpid();
             temp[30] = 'P' + i + ' ' + pid;
             write(unnamedPipe, temp, 30);
-            output[50] = 'P' + i + ' is started and it has a pid of ' + pid;
-            myfile << output << endl;
-            execl("./executor.out", (char*) process_number, process_output); // might not be correct to way.
+            message = 'P' + char(i) + ' is started and it has a pid of ' + pid;
+            myfile << message << endl;
+            execl("/mnt/c/Users/ABDULLAH/Desktop/322_1/src/process.out", number, process_output, NULL); // might not be correct to way.
             break;
         } else if(child == -1) {
             perror("fork failed.");

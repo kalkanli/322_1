@@ -12,6 +12,25 @@ bool isHeadProcess = false;
 
 using namespace std;
 
+void signalHandler(int signal)
+{
+    ofstream myfile;
+    myfile.open(process_output);
+    string message;
+    if (signal == 15)
+    {
+        message = 'P' + *process_number + ' waiting for a signal';
+        myfile << message << endl;
+        exit(15);
+    }
+    else
+    {
+        message = 'P' + *process_number + ' recieved signal ' + signal;
+        myfile << message << endl;
+    }
+}
+
+
 int main(int argc, char const *argv[])
 {
     signal(SIGHUP, signalHandler);
@@ -22,35 +41,27 @@ int main(int argc, char const *argv[])
     signal(SIGSEGV, signalHandler);
     signal(SIGTERM, signalHandler);
     signal(SIGXCPU, signalHandler);
-    
-    process_number = (char*) argv[1];
-    process_output = (char*) argv[2];
-    if ((char)process_number == '1')
+
+    process_number = (char *)argv[1];
+    process_output = (char *)argv[2];
+    if (*process_number == '1')
     {
         isHeadProcess = true;
     }
 
     ofstream myfile;
     myfile.open(process_output);
-    char output[50];
+    string message;
 
-    output[50] = 'P' + (char)process_number + ' waiting for a signal'; 
-    myfile << output << endl;
+    message = 'P' + *process_number + ' waiting for a signal';
+    myfile << message << endl;
 
-    while(true) {
+    while (true)
+    {
         sleep(1);
     }
 
     return 0;
 }
 
-void signalHandler(int signal) {
-    if(signal == 15) {
-        exit(15);
-    }
-    ofstream myfile;
-    myfile.open(process_output);
-    char output[50];
-    output[50] = 'P' + (char)process_number + ' waiting for a signal'; 
-    myfile << output << endl;
-}
+

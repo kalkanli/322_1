@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
     /*
     * Get command line arguments. Expects 2 inputs, number of processes and a path to the instructions.txt file.
     */
+   cout << "HERE" << endl;
     processNum = stoi(argv[1]) ;
     inputPath = argv[2];
     pid_t pidList[processNum+1]; // Keep PID of watchdog at 0, PID of P1 at 1, ...
