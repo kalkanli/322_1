@@ -18,7 +18,10 @@ void signalHandler(int signal)
     string message;
     if (signal == 15)
     {
-        message = "P" + process_number + " waiting for a signal";
+        message = "P" + process_number + " is killed";
+        if(process_number == "1") {
+            message += ", all processes must be killed\nRestarting all processes";
+        }
         myfile << message << endl;
         exit(15);
     }
@@ -43,18 +46,15 @@ int main(int argc, char const *argv[])
 
     process_number = argv[1];
     process_output = argv[2];
-    cout << process_number << " - " << process_output << endl;
-    if (process_number == "1")
-    {
-        isHeadProcess = true;
-    }
 
     ofstream myfile;
     myfile.open(process_output);
     string message;
 
+    cout << "process #" + process_number << " is initialized " << endl;
+    myfile << process_number << " **** " << process_output << endl;
+
     message = "P" + process_number + " waiting for a signal";
-    cout << message << endl;
     myfile << message << endl;
 
     while (true)
