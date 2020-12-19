@@ -6,11 +6,10 @@
 #include <sys/stat.h>
 #include <csignal>
 
-char *process_output;
-char *process_number;
-bool isHeadProcess = false;
-
 using namespace std;
+string process_output;
+string process_number;
+bool isHeadProcess = false;
 
 void signalHandler(int signal)
 {
@@ -19,13 +18,13 @@ void signalHandler(int signal)
     string message;
     if (signal == 15)
     {
-        message = "P" + to_string(*process_number) + " waiting for a signal";
+        message = "P" + process_number + " waiting for a signal";
         myfile << message << endl;
         exit(15);
     }
     else
     {
-        message = "P" + to_string(*process_number) + " recieved signal " + to_string(signal);
+        message = "P" + process_number + " recieved signal " + to_string(signal);
         myfile << message << endl;
     }
 }
@@ -42,10 +41,10 @@ int main(int argc, char const *argv[])
     signal(SIGTERM, signalHandler);
     signal(SIGXCPU, signalHandler);
 
-    process_number = (char *)argv[1];
-    process_output = (char *)argv[2];
+    process_number = argv[1];
+    process_output = argv[2];
     cout << process_number << " - " << process_output << endl;
-    if (*process_number == '1')
+    if (process_number == "1")
     {
         isHeadProcess = true;
     }
@@ -54,7 +53,8 @@ int main(int argc, char const *argv[])
     myfile.open(process_output);
     string message;
 
-    message = "P" + to_string(*process_number) + " waiting for a signal";
+    message = "P" + process_number + " waiting for a signal";
+    cout << message << endl;
     myfile << message << endl;
 
     while (true)
