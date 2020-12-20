@@ -44,7 +44,7 @@ int main(int argc, char const *argv[])
     signal(SIGTERM, signalHandler);
     signal(SIGXCPU, signalHandler);
 
-    if(argc != 3) {
+    if(argc != 2) {
         exit(21);
     }
     

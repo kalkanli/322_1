@@ -13,7 +13,7 @@ string watchdog_output;
 
 int main(int argc, char const *argv[])
 {   
-    cout << "hello world" << endl;
+    cout << argv[0] << endl;
     num_of_processes = stoi(argv[1]);
     process_output = argv[2];
     watchdog_output = argv[3];
@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
             string output = "P" + to_string(i) + " is started and it has a pid of " + to_string(pid);
             //myfile << output << endl;
             //cout << &number << " " << number << " " << process_output << endl;
-            execl("process", number.c_str() , process_output, NULL); // might not be correct to way.
+            //execl("process", number.c_str() , process_output, NULL); // might not be correct to way.
             break;
         } else if(child == -1) {
             perror("fork failed.");
