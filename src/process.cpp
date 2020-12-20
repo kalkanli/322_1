@@ -44,8 +44,12 @@ int main(int argc, char const *argv[])
     signal(SIGTERM, signalHandler);
     signal(SIGXCPU, signalHandler);
 
-    process_number = argv[1];
-    process_output = argv[2];
+    if(argc != 3) {
+        exit(21);
+    }
+    
+    process_number = argv[0];
+    process_output = argv[1];
 
     ofstream myfile;
     myfile.open(process_output);

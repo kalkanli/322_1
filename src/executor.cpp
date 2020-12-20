@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
         splitmsg >> p_index >> p_pid;
         id = stoi(p_index.substr(1));
         pid = stoi(p_pid);
+        cout << id << " + " << pid << endl;
         pidList[id] = pid;
     }
 
