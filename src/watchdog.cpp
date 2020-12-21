@@ -5,19 +5,36 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <map>
 
 using namespace std;
 int num_of_processes;
 string process_output;
 string watchdog_output;
-map<int, int> process_ids = {};
+
+
+
+void process_slaughter(int *process_ids) {
+    for(int i=2; i<=num_of_processes; i++) {
+        cout << process_ids[i] << endl;
+        kill(process_ids[i], SIGTERM);
+    }
+}
+
+int index_of(int *arr, int element, int length) {
+    for(int i=0; i<length; i++) {
+        if(arr[i] == element) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 
 int main(int argc, char const *argv[])
 {
     num_of_processes = stoi(argv[1]);
     watchdog_output = argv[3];
-
+    int process_ids[num_of_processes+1];
     ofstream myfile;
     myfile.open(watchdog_output);
 
@@ -28,7 +45,7 @@ int main(int argc, char const *argv[])
     // string message = "P0 " + to_string(getpid()) + "\n";
     // write(unnamedPipe, message.c_str(), 30);
     int parent_process_id = getpid();
-    process_ids.insert(pair<int, int>(parent_process_id, 0));
+    process_ids[0] = parent_process_id;
 
     int i, pid;
     for (i = 1; i <= num_of_processes; i++)
@@ -53,29 +70,24 @@ int main(int argc, char const *argv[])
         }
         else
         {
-            process_ids.insert(pair<int, int>(child, i));
+            process_ids[i] = child;
         }
     }
 
-    map<int, int>::iterator it;
+    cout << process_ids[5] << endl;
+
     int child_pid;
     while ((child_pid = wait(NULL)) > 0)
     {
-        it = process_ids.find(child_pid);
-        int n = it->second;
-        if (it->second == 1)
+        int n = index_of(process_ids, child_pid, num_of_processes);
+        cout << n << endl;
+        if (n == 1)
         {
-            string message = "P" + to_string(n) + " is killed\nRestarting P" + to_string(n);
+            process_slaughter(process_ids);
         }
-        char process_num[10];
-        sprintf(process_num, "%d", n);
-        string message = "P" + to_string(n) + " is killed\nRestarting P" + to_string(n);
-        myfile << message << endl;
-        int child1 = fork();
-        process_ids.erase(it);
-        process_ids.insert(pair<int, int>(child1, n));
-        execl("./process", process_num, argv[2], NULL);
     }
 
     return 0;
 }
+
+
