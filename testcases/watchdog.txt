@@ -1,5 +1,5 @@
-P1 is started and it has a pid of 10363
-P2 is started and it has a pid of 10364
-P3 is started and it has a pid of 10365
-P4 is started and it has a pid of 10366
-P5 is started and it has a pid of 10367
+P1 is started and it has a pid of 692
+P2 is started and it has a pid of 693
+P3 is started and it has a pid of 694
+P4 is started and it has a pid of 695
+P5 is started and it has a pid of 696

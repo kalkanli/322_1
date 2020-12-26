@@ -18,10 +18,6 @@ void signalHandler(int signal)
 
     if (signal == 15)
     {
-        if(process_number == "1") {
-            message += ", all processes must be killed\nRestarting all processes";
-        }
-        myfile << message << endl;
         exit(15);
     }
     else
