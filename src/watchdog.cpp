@@ -10,6 +10,7 @@ using namespace std;
 int num_of_processes;
 string process_output;
 string watchdog_output;
+FILE *watchdog_ofile;
 
 void process_slaughter(int *process_ids) {
     for (int i = 2; i <= num_of_processes; i++) {
@@ -26,14 +27,10 @@ int index_of(int *arr, int element, int length) {
     return -1;
 }
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
     num_of_processes = stoi(argv[1]);
     watchdog_output = argv[3];
     int process_ids[num_of_processes + 1];
-    ofstream myfile;
-    myfile.open(watchdog_output);
-
     // int unnamedPipe;
     // char * myfifo = (char*) "/tmp/myfifo";
     // mkfifo(myfifo, 0644);
@@ -42,50 +39,64 @@ int main(int argc, char const *argv[])
     // write(unnamedPipe, message.c_str(), 30);
     int parent_process_id = getpid();
     process_ids[0] = parent_process_id;
-
+    watchdog_ofile = fopen("../testcases/watchdog.txt", "a");
+    fprintf(watchdog_ofile, "niye print etmiyorsun?\n");
+    fclose(watchdog_ofile);
     int i, pid;
-    for (i = 1; i <= num_of_processes; i++)
-    {
+    for (i = 1; i <= num_of_processes; i++) {
         int child = fork();
-        if (child == 0)
-        {
+        if (child == 0) {
             char process_number[10];
             sprintf(process_number, "%d", i);
             pid = getpid();
             //message = "P" + to_string(i) + " " + to_string(pid) + "\n";
             //write(unnamedPipe, message.c_str(), 30);
-            string output = "P" + to_string(i) + " is started and it has a pid of " + to_string(pid);
-            myfile << output << endl;
+            watchdog_ofile = fopen("../testcases/watchdog.txt", "a");
+            fprintf(watchdog_ofile, "P%d is started and it has a pid of %d\n", i, pid);
+            fclose(watchdog_ofile);
             execl("./process", process_number, argv[2], NULL);
-        }
-        else if (child == -1)
-        {
+        } else if (child == -1) {
             perror("fork failed.");
             break;
-        }
-        else
-        {
+        } else {
             process_ids[i] = child;
         }
     }
 
     int child_pid;
-    while ((child_pid = wait(NULL)) > 0)
-    {
+    int status;
+    while ((child_pid = wait(NULL)) > 0) {
+        if(child_pid == -1) { break; }
         int n = index_of(process_ids, child_pid, num_of_processes);
-        if (n == 1)
-        {
+        if (n == 1) {
             process_slaughter(process_ids);
-        }
-        else
-        {
+            watchdog_ofile = fopen("../testcases/watchdog.txt", "a");
+            fprintf(watchdog_ofile, "P1 is killed, all processes must be killed\nRestarting all processes\n");
+            fclose(watchdog_ofile);
+            for(int i=1; i<=num_of_processes; i++) {
+                child_pid = fork();
+                if(child_pid == 0) {
+                    char process_number[10];
+                    sprintf(process_number, "%d", i);
+                    execl("./process", process_number, argv[2], NULL);
+                } else if(child_pid > 0) {
+                    process_ids[i] = child_pid;
+                }
+            }
+        
+        } else if (n > 1) {
             char process_number[10];
             process_ids[n] = fork();
-            sprintf(process_number, "%d", n);
-            cout << "P" + to_string(n) + " is killed\nRestarting P"+to_string(n);
-            execl("./process", process_number, argv[2], NULL);
+            if(process_ids[n] == 0) {
+                sprintf(process_number, "%d", n);
+                execl("./process", process_number, argv[2], NULL);
+            }
+            watchdog_ofile = fopen("../testcases/watchdog.txt", "a");
+            fprintf(watchdog_ofile, "P%d is is killed\nRestarting P%d\n", n, n);
+            fclose(watchdog_ofile);
         }
     }
+    fclose(watchdog_ofile);
 
     return 0;
 }
