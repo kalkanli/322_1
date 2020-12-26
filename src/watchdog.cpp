@@ -31,17 +31,14 @@ int main(int argc, char const *argv[]) {
     num_of_processes = stoi(argv[1]);
     watchdog_output = argv[3];
     int process_ids[num_of_processes + 1];
-    // int unnamedPipe;
-    // char * myfifo = (char*) "/tmp/myfifo";
-    // mkfifo(myfifo, 0644);
-    // unnamedPipe = open(myfifo, O_WRONLY);
-    // string message = "P0 " + to_string(getpid()) + "\n";
-    // write(unnamedPipe, message.c_str(), 30);
+    int unnamedPipe;
+    char * myfifo = (char*) "/tmp/myfifo";
+    mkfifo(myfifo, 0644);
+    unnamedPipe = open(myfifo, O_WRONLY);
+    string message = "P0 " + to_string(getpid()) + "\n";
+    write(unnamedPipe, message.c_str(), 30);
     int parent_process_id = getpid();
     process_ids[0] = parent_process_id;
-    watchdog_ofile = fopen("../testcases/watchdog.txt", "a");
-    fprintf(watchdog_ofile, "niye print etmiyorsun?\n");
-    fclose(watchdog_ofile);
     int i, pid;
     for (i = 1; i <= num_of_processes; i++) {
         int child = fork();
@@ -49,8 +46,8 @@ int main(int argc, char const *argv[]) {
             char process_number[10];
             sprintf(process_number, "%d", i);
             pid = getpid();
-            //message = "P" + to_string(i) + " " + to_string(pid) + "\n";
-            //write(unnamedPipe, message.c_str(), 30);
+            message = "P" + to_string(i) + " " + to_string(pid) + "\n";
+            write(unnamedPipe, message.c_str(), 30);
             watchdog_ofile = fopen("../testcases/watchdog.txt", "a");
             fprintf(watchdog_ofile, "P%d is started and it has a pid of %d\n", i, pid);
             fclose(watchdog_ofile);
@@ -81,6 +78,8 @@ int main(int argc, char const *argv[]) {
                     execl("./process", process_number, argv[2], NULL);
                 } else if(child_pid > 0) {
                     process_ids[i] = child_pid;
+                    message = "P" + to_string(i) + " " + to_string(child_pid) + "\n";
+                    write(unnamedPipe, message.c_str(), 30);
                 }
             }
         
@@ -91,6 +90,8 @@ int main(int argc, char const *argv[]) {
                 sprintf(process_number, "%d", n);
                 execl("./process", process_number, argv[2], NULL);
             }
+            message = "P" + to_string(n) + " " + to_string(process_ids[n]) + "\n";
+            write(unnamedPipe, message.c_str(), 30);
             watchdog_ofile = fopen("../testcases/watchdog.txt", "a");
             fprintf(watchdog_ofile, "P%d is is killed\nRestarting P%d\n", n, n);
             fclose(watchdog_ofile);
