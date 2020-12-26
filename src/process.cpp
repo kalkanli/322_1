@@ -7,29 +7,47 @@
 #include <csignal>
 
 using namespace std;
-string process_output;
+const char *process_output;
 int process_number;
 FILE *file;
 string message;
 
+/*
+    output_type:
+    1 -> P# is waiting for signal
+    2 -> P# recieved signal <signal>
+    3 -> P# recieved signal <signal>, terminating gracefully 
+*/
+void print_output(int output_type, const char *o_file, int process_number, int signal)
+{
+    file = fopen(o_file, "a");
+    switch (output_type)
+    {
+    case 1:
+        fprintf(file, "P%d is waiting for signal\n", process_number);
+        break;
+    case 2:
+        fprintf(file, "P%d recieved signal %d\n", process_number, signal);
+        break;
+    case 3:
+        fprintf(file, "P%d recieved signal %d, terminating gracefully\n", process_number, signal);
+        break;
+    }
+    fclose(file);
+}
+
 void signalHandler(int signal)
 {
-
     if (signal == 15)
     {
-        file = fopen("../testcases/process.txt", "a");
-        fprintf (file, "P%d recieved signal %d, terminating gracefully\n",process_number, signal);
-        fclose(file);
+        print_output(3, process_output, process_number, signal);
         exit(15);
     }
     else
     {
-        file = fopen("../testcases/process.txt", "a");
-        fprintf (file, "P%d recieved signal %d\n",process_number, signal);
-        fclose(file);
+        print_output(3, process_output, process_number, signal);
     }
 }
-
 
 int main(int argc, char const *argv[])
 {
@@ -42,19 +60,22 @@ int main(int argc, char const *argv[])
     signal(SIGTERM, signalHandler);
     signal(SIGXCPU, signalHandler);
 
-    if(argc == 2) {
+    if (argc == 2)
+    {
         process_number = stoi(argv[0]);
         process_output = argv[1];
-    } else if(argc == 3) {
+    }
+    else if (argc == 3)
+    {
         process_number = stoi(argv[1]);
         process_output = argv[2];
-    } else {
+    }
+    else
+    {
         perror("wrong number of arguments!");
     }
-    
-    file = fopen("../testcases/process.txt", "a");
-    fprintf (file, "P%d is waiting for signal\n",process_number);
-    fclose(file);
+
+    print_output(1, process_output, process_number, 0);
 
     while (true)
     {
@@ -63,5 +84,3 @@ int main(int argc, char const *argv[])
 
     return 0;
 }
-
-
