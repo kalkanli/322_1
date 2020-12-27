@@ -102,6 +102,7 @@ int main(int argc, char const *argv[]) {
         if (n == 1) {
             process_slaughter(process_ids);
             print_output(2, argv[3], 0, 0);
+            
             for (int i = 1; i <= num_of_processes; i++) {
                 child_pid = fork();
                 if (child_pid == 0) {
@@ -112,8 +113,9 @@ int main(int argc, char const *argv[]) {
                     write_to_pipe(unnamedPipe, i, child_pid);
                 }
             }
-        } else if (n > 1) {
             
+        } else if (n > 1) {
+
             process_ids[n] = fork();
             if (process_ids[n] == 0) {
                 initialize_process(n, argv[2]);
