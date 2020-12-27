@@ -8,8 +8,8 @@
 
 using namespace std;
 const char *process_output; /**< pointer to the process_output file path.*/
-int process_number; /**< N for this process. (PN).*/
-FILE *file; /**< File that processes writes concurrently.*/
+int process_number; /**< N for this process PN.*/
+FILE *file; /**< File that processes writes to concurrently.*/
 
 /**
  * @brief prints output according to the given output type as shown below.
@@ -22,9 +22,9 @@ FILE *file; /**< File that processes writes concurrently.*/
  * 
  *     a==3 -> P# recieved signal <signal>, terminating gracefully  
  * 
- * @param output_type defines the type of the message that will be printed to the output file.
- * @param o_file pointer to the file path of the output file.
- * @param signal signal that will be printed in the message.
+ * @param output_type Defines the type of the message that will be printed to the process_output file.
+ * @param o_file Pointer to the process_output file path.
+ * @param signal Signal that will be printed in the message.
  * 
  */
 void print_output(int output_type, const char *o_file, int process_number, int signal)
@@ -63,9 +63,16 @@ void signalHandler(int signal)
         print_output(2, process_output, process_number, signal);
     }
 }
-
+/**
+ * @brief Main function of process.cpp
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char const *argv[])
 {
+    /** Signal handlers. (75-83)*/
     signal(SIGHUP, signalHandler);
     signal(SIGINT, signalHandler);
     signal(SIGILL, signalHandler);
@@ -75,12 +82,12 @@ int main(int argc, char const *argv[])
     signal(SIGTERM, signalHandler);
     signal(SIGXCPU, signalHandler);
 
-    if (argc == 2) 
+    if (argc == 2) /** if this process is forked and executed from anohter process using exec function. it takes two arguments. (85-89)*/
     {
         process_number = stoi(argv[0]);
         process_output = argv[1];
     }
-    else if (argc == 3)
+    else if (argc == 3) /** if it is executed from the command line than it accepts 3 arguments. (90-94)*/ 
     {
         process_number = stoi(argv[1]);
         process_output = argv[2];
