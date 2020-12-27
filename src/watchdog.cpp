@@ -7,17 +7,30 @@
 #include <sys/wait.h>
 
 using namespace std;
-int num_of_processes;
-string process_output;
-string watchdog_output;
-FILE *watchdog_ofile;
+int num_of_processes; /**< Number of processes that will be created and monitored*/
+string process_output; /**< Output path of the P#*/
+string watchdog_output; /**< Output path of the watchdog process.*/
+FILE *watchdog_ofile; /**< Pointer to the output file of the watchdog process*/
 
+/**
+ * @brief Kills all the processes after being called. Usually after P1 is terminated.
+ * 
+ * @param process_ids Pointer to the array that holds the values of pid of processes.
+ */
 void process_slaughter(int *process_ids) {
     for (int i = 2; i <= num_of_processes; i++) {
         kill(process_ids[i], SIGTERM);
     }
 }
 
+/**
+ * @brief Returns the index of searched element in the array.
+ * 
+ * @param arr Pointer to an array
+ * @param element Element that is being searched for 
+ * @param length Length of the array
+ * @return int index of searched element. if not found returns -1
+ */
 int index_of(int *arr, int element, int length) {
     for (int i = 1; i <= length; i++) {
         if (arr[i] == element) {
@@ -28,12 +41,28 @@ int index_of(int *arr, int element, int length) {
 }
 
 /*
-    output_type
-    1 -> P# is started and it has a pid of <PID>.
-    2 -> P1 is killed, all processes ...
-    3 -> P# is killed
-         Restarting P#
+    
 */
+
+/**
+ * @brief Prints output message to the file that is pointed by o_file. 
+ * It picks the message according to output_type parameter, as shown below.
+ * This method was written for simplicity and plainnes.
+ * 
+ * output_type
+ * 
+ *      a==1 -> P# is started and it has a pid of <PID>.
+ *  
+ *      a==2 -> P1 is killed, all processes must be killed\nRestarting all processes
+ *  
+ *      a==3 -> P# is killed
+ *              Restarting P#
+ *  
+ * @param output_type int value that implies type of the output.
+ * @param o_file file path of the file.
+ * @param a int value to print if needed. if not needed, value of a doesn't matter.
+ * @param b int value to print if needed. if not needed, value of b doesn't matter.
+ */
 void print_output(int output_type, const char *o_file, int a, int b) {
     watchdog_ofile = fopen(o_file, "a");
     switch (output_type) {
@@ -50,22 +79,46 @@ void print_output(int output_type, const char *o_file, int a, int b) {
     fclose(watchdog_ofile);
 }
 
+/**
+ * @brief Writes to pipe messages in the format "P<process_number> <pid>"
+ * Written in order to gain simplicity and plainnes.
+ * 
+ * @param pipe int value of the pipe to be written at
+ * @param process_number process number of the process
+ * @param pid process id of the process
+ */
 void write_to_pipe(int pipe, int process_number, int pid) {
     string message = "P" + to_string(process_number) + " " + to_string(pid);
     write(pipe, message.c_str(), 30);
 }
 
+
+/**
+ * @brief Initializes a process with a given process number 
+ * 
+ * @param process_number number of the process that will be initialized
+ * @param output pointer to output file of process.
+ */
 void initialize_process(int process_number, const char *output) {
     char process_number_arg[10];
     sprintf(process_number_arg, "%d", process_number);
     execl("./process", process_number_arg, output, NULL);
 }
 
+/**
+ * @brief where the magic happens
+ * 
+ * @param argc argument count
+ * @param argv argument vector
+ * @return int 
+ */
 int main(int argc, char const *argv[]) {
 
-    num_of_processes = stoi(argv[1]);
-    watchdog_output = argv[3];
-    int process_ids[num_of_processes + 1];
+    num_of_processes = stoi(argv[1]); 
+    watchdog_output = argv[3]; 
+    
+    int process_ids[num_of_processes + 1]; 
+
 
     int unnamedPipe;
     char *myfifo = (char *)"/tmp/myfifo";
@@ -73,11 +126,11 @@ int main(int argc, char const *argv[]) {
     unnamedPipe = open(myfifo, O_WRONLY);
 
     write_to_pipe(unnamedPipe, 0, getpid());
+    process_ids[0] = getpid();
 
-    int parent_process_id = getpid();
-    process_ids[0] = parent_process_id;
-    int i;
-    for (i = 1; i <= num_of_processes; i++) {
+
+  
+    for (int i = 1; i <= num_of_processes; i++) { 
         int child = fork();
         if (child == 0) {
 
