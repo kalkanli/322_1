@@ -10,12 +10,11 @@ using namespace std;
 const char *process_output; /**< pointer to the process_output file path.*/
 int process_number; /**< N for this process. (PN).*/
 FILE *file; /**< File that processes writes concurrently.*/
-string message;
 
 /**
  * @brief prints output according to the given output type as shown below.
  *     
- *   output_type:
+ * output_type:
  * 
  *     a==1 -> P# is waiting for signal
  * 
@@ -61,7 +60,7 @@ void signalHandler(int signal)
     }
     else
     {
-        print_output(3, process_output, process_number, signal);
+        print_output(2, process_output, process_number, signal);
     }
 }
 

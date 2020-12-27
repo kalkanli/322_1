@@ -51,7 +51,9 @@ int index_of(int *arr, int element, int length) {
  * 
  * output_type
  * 
- *      a==1 -> P# is started and it has a pid of <PID>.
+ *      a==0 -> Watchdog is terminating gracefully
+ * 
+ *      a==1 -> P# is started and it has a pid of <PID>
  *  
  *      a==2 -> P1 is killed, all processes must be killed\nRestarting all processes
  *  
@@ -74,6 +76,9 @@ void print_output(int output_type, const char *o_file, int a, int b) {
         break;
     case 3:
         fprintf(watchdog_ofile, "P%d is is killed\nRestarting P%d\n", a, b);
+        break;
+    case 0:
+        fprintf(watchdog_ofile, "Watchdog is terminating gracefully");
         break;
     }
     fclose(watchdog_ofile);
@@ -106,30 +111,38 @@ void initialize_process(int process_number, const char *output) {
 }
 
 /**
- * @brief where the magic happens
- * 
+ * @brief Main function.
+ *  
  * @param argc argument count
  * @param argv argument vector
- * @return int 
+ * @return int 0 when it finishes execution successfuly
  */
 int main(int argc, char const *argv[]) {
+    /** In order to provide better understanding in documentation comments are written with the format:
+     * 
+     * <comment about the code in the function>  (<code-starting-line>-<code-ending-line>)
+    */
 
+
+    /** Retrieves the arguments. (128-129) */
     num_of_processes = stoi(argv[1]); 
     watchdog_output = argv[3]; 
     
+    /** Creates the array that will hold the pid of child processes. (132) */
     int process_ids[num_of_processes + 1]; 
 
 
+    /* Creates the pipe and writes its own pid to the pipe. (136-141) */
     int unnamedPipe;
     char *myfifo = (char *)"/tmp/myfifo";
     mkfifo(myfifo, 0644);
     unnamedPipe = open(myfifo, O_WRONLY);
-
     write_to_pipe(unnamedPipe, 0, getpid());
     process_ids[0] = getpid();
 
 
-  
+    /** Creates number of processes that is given in the parameters. (146-161) */
+    /** Also indexes their pid in "process_ids" array (158) */
     for (int i = 1; i <= num_of_processes; i++) { 
         int child = fork();
         if (child == 0) {
@@ -143,16 +156,19 @@ int main(int argc, char const *argv[]) {
             break;
         } else {
             process_ids[i] = child;
+            sleep(1);
         }
     }
 
+    /** Waits for all the children processes to be finished, then takes appropriate action. (164-194)*/
     int child_pid;
     while ((child_pid = wait(NULL)) > 0) {
-        if (child_pid == -1) {
+        if (child_pid == -1) { /** if returned pid from wait() then there is no child left that is running. (166) */
             break;
         }
+        
         int n = index_of(process_ids, child_pid, num_of_processes);
-        if (n == 1) {
+        if (n == 1) { /** n being equal to 1 implies P1 is terminated. so every process will be killed and restarted. (171)*/
             process_slaughter(process_ids);
             print_output(2, argv[3], 0, 0);
             
@@ -166,9 +182,8 @@ int main(int argc, char const *argv[]) {
                     write_to_pipe(unnamedPipe, i, child_pid);
                 }
             }
-            
-        } else if (n > 1) {
-
+           
+        } else if (n > 1) { /** One process killed only that process will be restarted. (186) */
             process_ids[n] = fork();
             if (process_ids[n] == 0) {
                 initialize_process(n, argv[2]);
@@ -177,7 +192,9 @@ int main(int argc, char const *argv[]) {
             print_output(3, argv[3], n, n);
         }
     }
-    fclose(watchdog_ofile);
+
+    /** Final output printed. (197) */
+    print_output(0, argv[3], 0, 0);
 
     return 0;
 }
