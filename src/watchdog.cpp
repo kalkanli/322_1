@@ -11,6 +11,7 @@ int num_of_processes; /**< Number of processes that will be created and monitore
 string process_output; /**< Output path of the P#*/
 string watchdog_output; /**< Output path of the watchdog process.*/
 FILE *watchdog_ofile; /**< Pointer to the output file of the watchdog process*/
+struct timespec delta = {0 /*secs*/, 300000000 /*nanosecs*/}; //0.3 sec
 
 /**
  * @brief Kills all the processes after being called. Usually after P1 is terminated.
@@ -20,6 +21,7 @@ FILE *watchdog_ofile; /**< Pointer to the output file of the watchdog process*/
 void process_slaughter(int *process_ids) {
     for (int i = 2; i <= num_of_processes; i++) {
         kill(process_ids[i], SIGTERM);
+        nanosleep(&delta, &delta);
     }
 }
 
@@ -71,7 +73,7 @@ void print_output(int output_type, const char *o_file, int a, int b) {
         fprintf(watchdog_ofile, "P1 is killed, all processes must be killed\nRestarting all processes\n");
         break;
     case 3:
-        fprintf(watchdog_ofile, "P%d is is killed\nRestarting P%d\n", a, b);
+        fprintf(watchdog_ofile, "P%d is killed\nRestarting P%d\n", a, b);
         break;
     case 0:
         fprintf(watchdog_ofile, "Watchdog is terminating gracefully");
@@ -147,7 +149,7 @@ int main(int argc, char const *argv[]) {
             break;
         } else {
             process_ids[i] = child;
-            sleep(1);
+            nanosleep(&delta, &delta);       
         }
     }
 
@@ -170,6 +172,8 @@ int main(int argc, char const *argv[]) {
                 }
                 else if (child_pid > 0) {
                     process_ids[i] = child_pid;
+                    print_output(1, argv[3], i, child_pid);
+                    nanosleep(&delta, &delta);
                     write_to_pipe(unnamedPipe, i, child_pid);
                 }
             }

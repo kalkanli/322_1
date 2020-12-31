@@ -36,10 +36,10 @@ void print_output(int output_type, const char *o_file, int process_number, int s
         fprintf(file, "P%d is waiting for signal\n", process_number);
         break;
     case 2:
-        fprintf(file, "P%d recieved signal %d\n", process_number, signal);
+        fprintf(file, "P%d received signal %d\n", process_number, signal);
         break;
     case 3:
-        fprintf(file, "P%d recieved signal %d, terminating gracefully\n", process_number, signal);
+        fprintf(file, "P%d received signal %d, terminating gracefully\n", process_number, signal);
         break;
     }
     fclose(file);
