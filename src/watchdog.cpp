@@ -11,7 +11,7 @@ int num_of_processes;                                        /**< Number of proc
 string process_output;                                       /**< Output path of the P#*/
 string watchdog_output;                                      /**< Output path of the watchdog process.*/
 FILE *watchdog_ofile;                                        /**< Pointer to the output file of the watchdog process*/
-struct timespec delta = {0 /*secs*/, 100000000 /*nanosecs*/}; /**< 0.01 second wait time.*/
+struct timespec delta = {0 /*secs*/, 100000000 /*nanosecs*/}; /**< 0.1 second wait time.*/
 
 /**
  * @brief Kills all the processes after being called. Usually after P1 is terminated.
@@ -115,6 +115,13 @@ void initialize_process(int process_number, const char *output)
     sprintf(process_number_arg, "%d", process_number);
     execl("./process", process_number_arg, output, NULL);
 }
+
+/**
+ * @brief This method is executed at the end of watchdog process. 
+ * After receiving SIGTERM signal watchdog exits execution.
+ * 
+ * @param signal 
+ */
 
 void signalHandler(int signal)
 {
@@ -223,9 +230,6 @@ int main(int argc, char const *argv[])
             print_output(1, argv[3], n, process_ids[n]);
         }
     }
-    // cout << "here" << endl;
-    //  // Final output printed.
-    // print_output(0, argv[3], 0, 0);
-
+    
     return 0;
 }
