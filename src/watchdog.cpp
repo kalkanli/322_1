@@ -7,11 +7,11 @@
 #include <sys/wait.h>
 
 using namespace std;
-int num_of_processes;                                         /**< Number of processes that will be created and monitored*/
-string process_output;                                        /**< Output path of the P#*/
-string watchdog_output;                                       /**< Output path of the watchdog process.*/
-FILE *watchdog_ofile;                                         /**< Pointer to the output file of the watchdog process*/
-struct timespec delta = {0 /*secs*/, 10000000 /*nanosecs*/}; /**< 0.01 second wait time.*/
+int num_of_processes;                                        /**< Number of processes that will be created and monitored*/
+string process_output;                                       /**< Output path of the P#*/
+string watchdog_output;                                      /**< Output path of the watchdog process.*/
+FILE *watchdog_ofile;                                        /**< Pointer to the output file of the watchdog process*/
+struct timespec delta = {0 /*secs*/, 100000000 /*nanosecs*/}; /**< 0.01 second wait time.*/
 
 /**
  * @brief Kills all the processes after being called. Usually after P1 is terminated.
