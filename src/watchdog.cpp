@@ -11,7 +11,7 @@ int num_of_processes; /**< Number of processes that will be created and monitore
 string process_output; /**< Output path of the P#*/
 string watchdog_output; /**< Output path of the watchdog process.*/
 FILE *watchdog_ofile; /**< Pointer to the output file of the watchdog process*/
-struct timespec delta = {0 /*secs*/, 300000000 /*nanosecs*/}; //0.3 sec
+struct timespec delta = {0 /*secs*/, 300000000 /*nanosecs*/}; /**< 0.3 second wait time.*/
 
 /**
  * @brief Kills all the processes after being called. Usually after P1 is terminated.
@@ -124,8 +124,11 @@ int main(int argc, char const *argv[]) {
     /** Creates the array that will hold the pid of child processes. (123) */
     int process_ids[num_of_processes + 1]; 
 
+    // If file already exists this two lines will clear its contents and treat it like a new file.
+    fopen(argv[3], "w");
+    fopen(argv[2], "w");
 
-    /* Creates the pipe and writes its own pid to the pipe. (127-132) */
+    // Creates the pipe and writes its own pid to the pipe.
     int unnamedPipe;
     char *myfifo = (char *)"/tmp/myfifo";
     mkfifo(myfifo, 0644);
@@ -134,8 +137,8 @@ int main(int argc, char const *argv[]) {
     process_ids[0] = getpid();
 
 
-    /** Creates number of processes that is given in the parameters. (137-152) */
-    /** Also indexes their pid in "process_ids" array (149) */
+    // Creates number of processes that is given in the parameters. 
+    // Also indexes their pid in "process_ids" array 
     for (int i = 1; i <= num_of_processes; i++) { 
         int child = fork();
         if (child == 0) {
@@ -153,15 +156,15 @@ int main(int argc, char const *argv[]) {
         }
     }
 
-    /** Waits for all the children processes to be finished, then takes appropriate action. (155-185)*/
+    // Waits for all the children processes to be finished, then takes appropriate action.
     int child_pid;
     while ((child_pid = wait(NULL)) > 0) {
-        if (child_pid == -1) { /** if returned pid from wait() then there is no child left that is running. (157) */
+        if (child_pid == -1) { // if returned pid from wait() then there is no child left that is running. 
             break;
         }
         
         int n = index_of(process_ids, child_pid, num_of_processes);
-        if (n == 1) { /** n being equal to 1 implies P1 is terminated. so every process will be killed and restarted. (162)*/
+        if (n == 1) { // n being equal to 1 implies P1 is terminated. so every process will be killed and restarted.
             process_slaughter(process_ids);
             print_output(2, argv[3], 0, 0);
             
@@ -178,7 +181,7 @@ int main(int argc, char const *argv[]) {
                 }
             }
            
-        } else if (n > 1) { /** One process killed only that process will be restarted. (177) */
+        } else if (n > 1) { // One process killed only that process will be restarted.
             process_ids[n] = fork();
             if (process_ids[n] == 0) {
                 initialize_process(n, argv[2]);
@@ -188,7 +191,7 @@ int main(int argc, char const *argv[]) {
         }
     }
 
-    /** Final output printed. (188) */
+    // Final output printed.
     print_output(0, argv[3], 0, 0);
 
     return 0;

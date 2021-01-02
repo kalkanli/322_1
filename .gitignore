@@ -4,3 +4,6 @@ src/executor.cpp
 config
 doxygen
 testcases
+src/executor
+src/process
+src/watchdog
