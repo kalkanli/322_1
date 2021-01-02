@@ -72,7 +72,7 @@ void signalHandler(int signal)
  */
 int main(int argc, char const *argv[])
 {
-    /** Signal handlers. (75-83)*/
+    // Signal handlers.
     signal(SIGHUP, signalHandler);
     signal(SIGINT, signalHandler);
     signal(SIGILL, signalHandler);
@@ -82,19 +82,19 @@ int main(int argc, char const *argv[])
     signal(SIGTERM, signalHandler);
     signal(SIGXCPU, signalHandler);
 
-    if (argc == 2) /** if this process is forked and executed from anohter process using exec function. it takes two arguments. (85-89)*/
+    if (argc == 2) // if this process is forked and executed from anohter process using exec function. it takes two arguments.
     {
         process_number = stoi(argv[0]);
         process_output = argv[1];
     }
-    else if (argc == 3) /** if it is executed from the command line than it accepts 3 arguments. (90-94)*/ 
+    else if (argc == 3) // if it is executed from the command line than it accepts 3 arguments.
     {
         process_number = stoi(argv[1]);
         process_output = argv[2];
     }
     else
     {
-        perror("wrong number of arguments!");
+        perror("Wrong number of arguments!");
     }
 
     print_output(1, process_output, process_number, 0);

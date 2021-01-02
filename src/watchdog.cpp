@@ -117,11 +117,11 @@ void initialize_process(int process_number, const char *output) {
  */
 int main(int argc, char const *argv[]) {
    
-    /** Retrieves the arguments. (119-120) */
+    // Retrieves the arguments.
     num_of_processes = stoi(argv[1]); 
     watchdog_output = argv[3]; 
     
-    /** Creates the array that will hold the pid of child processes. (123) */
+    // Creates the array that will hold the pid of child processes.
     int process_ids[num_of_processes + 1]; 
 
     // If file already exists this two lines will clear its contents and treat it like a new file.
@@ -188,6 +188,7 @@ int main(int argc, char const *argv[]) {
             }
             write_to_pipe(unnamedPipe, n, process_ids[n]);
             print_output(3, argv[3], n, n);
+            print_output(1, argv[3], n, process_ids[n]);
         }
     }
 
