@@ -33,7 +33,7 @@ void print_output(int output_type, const char *o_file, int process_number, int s
     switch (output_type)
     {
     case 1:
-        fprintf(file, "P%d is waiting for signal\n", process_number);
+        fprintf(file, "P%d is waiting for a signal\n", process_number);
         break;
     case 2:
         fprintf(file, "P%d received signal %d\n", process_number, signal);
